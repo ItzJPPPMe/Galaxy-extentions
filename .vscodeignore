@@ -1,0 +1,13 @@
+.vscode/**
+.vscode-test/**
+node_modules/**
+engine/source/**
+engine/obj/**
+engine/dub.selections.json
+src/**
+**/*.ts
+**/*.map
+.gitignore
+tsconfig.json
+package-lock.json
+.github/**

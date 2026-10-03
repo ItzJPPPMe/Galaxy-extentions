@@ -1,0 +1,313 @@
+{
+  "name": "galaxy-extension",
+  "displayName": "Galaxy",
+  "description": "High performance AI code completion for VS Code, powered by the native GalaxyEngine written in D.",
+  "version": "0.1.0",
+  "license": "MIT",
+  "publisher": "galaxy-labs",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/galaxy-labs/galaxy-extension.git"
+  },
+  "bugs": {
+    "url": "https://github.com/galaxy-labs/galaxy-extension/issues"
+  },
+  "homepage": "https://github.com/galaxy-labs/galaxy-extension#readme",
+  "keywords": [
+    "ai",
+    "autocomplete",
+    "inline-completion",
+    "codeium",
+    "copilot",
+    "d-lang",
+    "code-completion"
+  ],
+  "categories": [
+    "Programming Languages",
+    "Machine Learning",
+    "Snippets",
+    "Formatters"
+  ],
+  "engines": {
+    "vscode": "^1.84.0",
+    "node": ">=18"
+  },
+  "main": "./out/extension/src/extension.js",
+  "activationEvents": [
+    "onStartupFinished",
+    "onLanguage:d",
+    "onLanguage:typescript",
+    "onLanguage:typescriptreact",
+    "onLanguage:javascript",
+    "onLanguage:javascriptreact",
+    "onLanguage:python",
+    "onLanguage:rust",
+    "onLanguage:go",
+    "onLanguage:c",
+    "onLanguage:cpp",
+    "onLanguage:java",
+    "onLanguage:json",
+    "onLanguage:html",
+    "onLanguage:css",
+    "onLanguage:jsonc",
+    "onCommand:galaxy.restartEngine",
+    "onCommand:galaxy.showLogs",
+    "onCommand:galaxy.toggleInlineCompletion"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "galaxy.restartEngine",
+        "title": "Galaxy: Restart Engine",
+        "category": "Galaxy"
+      },
+      {
+        "command": "galaxy.showLogs",
+        "title": "Galaxy: Show Engine Logs",
+        "category": "Galaxy"
+      },
+      {
+        "command": "galaxy.toggleInlineCompletion",
+        "title": "Galaxy: Toggle Inline Completion",
+        "category": "Galaxy"
+      },
+      {
+        "command": "galaxy.showEngineStatus",
+        "title": "Galaxy: Show Engine Status",
+        "category": "Galaxy",
+        "enablement": "false"
+      }
+    ],
+    "configuration": {
+      "title": "Galaxy",
+      "properties": {
+        "galaxy.engine.path": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Absolute or relative path of the compiled `galaxy-engine` binary. When empty the extension probes `bin/`, `engine/bin/` and `out/engine/bin/` inside the installation folder."
+        },
+        "galaxy.engine.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable the GalaxyEngine background process."
+        },
+        "galaxy.engine.autoRestart": {
+          "type": "boolean",
+          "default": true,
+          "description": "Restart the engine automatically when it exits unexpectedly."
+        },
+        "galaxy.engine.requestTimeoutMs": {
+          "type": "number",
+          "default": 2500,
+          "minimum": 100,
+          "description": "Milliseconds to wait for an engine answer before the request is cancelled."
+        },
+        "galaxy.engine.requestDebounceMs": {
+          "type": "number",
+          "default": 60,
+          "minimum": 0,
+          "maximum": 1000,
+          "description": "Debounce applied to keystrokes before a completion request is sent."
+        },
+        "galaxy.engine.modelTimeoutMs": {
+          "type": "number",
+          "default": 4000,
+          "minimum": 500,
+          "description": "How long the inline provider waits for a model answer when the local engine produced nothing."
+        },
+        "galaxy.completion.list.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable the classic suggestion widget with ranked candidates."
+        },
+        "galaxy.completion.inline.enabled": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Enable grey ghost text inline suggestions. Requires `editor.inlineSuggest.enabled` to be `true`."
+        },
+        "galaxy.completion.inline.mode": {
+          "type": "string",
+          "enum": [
+            "hybrid",
+            "inline",
+            "list"
+          ],
+          "default": "hybrid",
+          "description": "Which surface renders the top ranked candidate."
+        },
+        "galaxy.completion.inline.minPrefixLength": {
+          "type": "number",
+          "default": 1,
+          "minimum": 0,
+          "maximum": 8,
+          "description": "Minimum number of typed characters before a ghost text suggestion is allowed."
+        },
+        "galaxy.completion.inline.maxItems": {
+          "type": "number",
+          "default": 5,
+          "minimum": 1,
+          "maximum": 25,
+          "description": "Maximum number of candidates returned to the suggestion widget."
+        },
+        "galaxy.completion.suppressInComments": {
+          "type": "boolean",
+          "default": true,
+          "description": "Do not request suggestions while the cursor is inside a comment or string literal."
+        },
+        "galaxy.completion.languages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "d",
+            "typescript",
+            "typescriptreact",
+            "javascript",
+            "javascriptreact",
+            "python",
+            "rust",
+            "go",
+            "c",
+            "cpp",
+            "java",
+            "json",
+            "jsonc",
+            "html",
+            "css"
+          ],
+          "description": "Language identifiers the providers are registered for."
+        },
+        "galaxy.service.endpoint": {
+          "type": "string",
+          "default": "https://api.galaxy.dev/v1",
+          "description": "Base URL of the remote model and template service."
+        },
+        "galaxy.service.apiKeyEnv": {
+          "type": "string",
+          "default": "GALAXY_API_KEY",
+          "description": "Name of the environment variable that holds the service credential."
+        },
+        "galaxy.service.timeoutMs": {
+          "type": "number",
+          "default": 4000,
+          "minimum": 200,
+          "description": "HTTP timeout of the engine fetcher in milliseconds."
+        },
+        "galaxy.service.maxRetries": {
+          "type": "number",
+          "default": 2,
+          "minimum": 0,
+          "maximum": 5,
+          "description": "Retry count for failed engine HTTP requests."
+        },
+        "galaxy.logging.level": {
+          "type": "string",
+          "enum": [
+            "off",
+            "error",
+            "warn",
+            "info",
+            "trace"
+          ],
+          "default": "info",
+          "description": "Verbosity of the Galaxy Engine output channel."
+        },
+        "galaxy.ai.enabled": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Enable model powered inline suggestions. The local engine keeps answering instantly; the model result upgrades the suggestion when it arrives."
+        },
+        "galaxy.ai.provider": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "openai",
+            "ollama",
+            "none"
+          ],
+          "default": "auto",
+          "description": "auto picks the cloud provider when a credential is present, otherwise the local Ollama runtime."
+        },
+        "galaxy.ai.model": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Model identifier. Fill in the middle models such as `qwen2.5-coder:1.5b` for Ollama or a `/v1/completions` model name for cloud providers. Leave empty to keep AI disabled."
+        },
+        "galaxy.ai.ollamaEndpoint": {
+          "type": "string",
+          "default": "http://127.0.0.1:11434",
+          "description": "Base URL of the local Ollama runtime."
+        },
+        "galaxy.ai.maxTokens": {
+          "type": "number",
+          "default": 96,
+          "minimum": 8,
+          "maximum": 512,
+          "description": "Upper bound for generated tokens. Keep it low so ghost text appears quickly."
+        },
+        "galaxy.ai.temperature": {
+          "type": "number",
+          "default": 0.2,
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Sampling temperature. Low values produce predictable code completions."
+        },
+        "galaxy.ai.stream": {
+          "type": "boolean",
+          "default": true,
+          "description": "Ask the provider for incremental deltas so ghost text can grow token by token."
+        },
+        "galaxy.ai.chatMode": {
+          "type": "boolean",
+          "default": false,
+          "description": "Use the /chat/completions route with a single user message instead of the /v1/completions fill in the middle route."
+        },
+        "galaxy.ai.promptStyle": {
+          "type": "string",
+          "enum": [
+            "fim",
+            "instruct"
+          ],
+          "default": "fim",
+          "description": "fim wraps the code with fim_prefix, fim_suffix and fim_middle tokens. instruct uses a fenced instruction block."
+        },
+        "galaxy.ai.prefixLines": {
+          "type": "number",
+          "default": 60,
+          "minimum": 5,
+          "maximum": 400,
+          "description": "How many lines of context before the cursor are sent to the model."
+        },
+        "galaxy.ai.suffixLines": {
+          "type": "number",
+          "default": 24,
+          "minimum": 0,
+          "maximum": 200,
+          "description": "How many lines of context after the cursor are sent to the model."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run build",
+    "build": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "typecheck": "tsc -p ./ --noEmit",
+    "engine:build": "dub build --root=./engine --compiler=dmd --build=release --force",
+    "engine:build:lcd": "dub build --root=./engine --compiler=ldc2 --build=release --force",
+    "engine:build:debug": "dub build --root=./engine --compiler=dmd --build=debug --force",
+    "engine:run": "dub run --root=./engine --compiler=dmd --",
+    "engine:clean": "rd /s /q .\\engine\\bin",
+    "compile": "npm run engine:build && npm run build",
+    "package": "vsce package",
+    "package:full": "npm run engine:build && vsce package",
+    "clean": "rd /s /q .\\out"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.30",
+    "@types/vscode": "^1.84.0",
+    "@vscode/vsce": "^4.0.0",
+    "typescript": "^5.4.5"
+  }
+}

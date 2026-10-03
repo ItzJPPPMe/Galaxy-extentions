@@ -1,0 +1,71 @@
+{
+  "name": "galaxy-engine",
+  "description": "Galaxy native completion engine, HTTP fetcher and JSON line IPC server",
+  "authors": [
+    "Galaxy Labs"
+  ],
+  "license": "MIT",
+  "copyright": "Copyright (c) 2026 Galaxy Labs",
+  "targetType": "executable",
+  "targetName": "galaxy-engine",
+  "targetPath": "bin",
+  "mainSourceFile": "source/app.d",
+  "sourceFiles": [
+    "source/app.d",
+    "source/fetcher.d",
+    "source/completer.d"
+  ],
+  "sourcePaths": [
+    "source"
+  ],
+  "workingDirectory": "source",
+  "dflags": [
+    "-de",
+    "-i",
+    "std.http",
+    "std.json"
+  ],
+  "buildTypes": {
+    "debug": {
+      "dflags": [
+        "-g",
+        "-debug",
+        "-w",
+        "-boundscheck=on",
+        "-version=DEBUG"
+      ]
+    },
+    "release": {
+      "dflags": [
+        "-O",
+        "-release",
+        "-inline",
+        "-w",
+        "-boundscheck=off"
+      ]
+    },
+    "release-native": {
+      "dflags": [
+        "-O",
+        "-release",
+        "-inline",
+        "-w",
+        "-boundscheck=off",
+        "-mcpu=native"
+      ],
+      "buildOptions": {
+        "releaseMode": true
+      }
+    },
+    "unittest": {
+      "dflags": [
+        "-g",
+        "-unittest",
+        "-w"
+      ],
+      "buildOptions": {
+        "debugMode": true
+      }
+    }
+  }
+}
